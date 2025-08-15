@@ -1,0 +1,45 @@
+services:
+  mysql-db:  # Сервіс бази даних
+   image: mysql  # Офіційний образ MySQL
+   container_name: mysql_new  # Фіксоване ім'я
+   environment:
+     MYSQL_ROOT_PASSWORD: root  # Пароль для root-користувача, константа mysql
+   volumes:
+     - ./mysql:/var/lib/mysql  # Локальна папка для даних БД
+   ports:
+     - "3306:3306"  # перенаправлення портів
+     - "2023:3306"  # перенаправлення портів
+   restart: always  # перезапускаем завжди
+
+  new_flask_app:  # Сервіс вашого додатку
+    image: hleb95/site:latest  # Використовуємо існуючий образ
+    container_name: my_app_db  # Фіксоване ім'я для зручності
+    ports:
+     - "8080:8080"
+    depends_on:
+      - mysql-db  # Запускати після mysql
+    restart: unless-stopped # Автоперезапуск при збоях
+  nginx: 
+   image: nginx
+   container_name: my-nginx  # Фіксоване ім'я
+   depends_on:
+     - new_flask_app  # Запускати після new_flask_app
+   volumes:
+     - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Ваш конфіг
+     - ./letsencrypt:/etc/letsencrypt:ro  # SSL-сертифікати
+     - ./html:/var/www/html
+   ports:
+     - "80:80"  # HTTP
+     - "443:443"  # HTTPS
+   restart: unless-stopped
+
+  watchtower:
+   image: containrrr/watchtower
+   container_name: watchtower
+   restart: always
+   volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - ~/.docker/config.json:/config.json # доступ до авторизаційних даних
+   environment:
+     - WATCHTOWER_SCHEDULE=0 0 01 * * 6 # Субота 4:00
+   command: --cleanup my_app_db
