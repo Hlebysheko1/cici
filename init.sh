@@ -31,5 +31,5 @@ echo "0 1 * * 1 bash $(pwd)/reload_cert.sh" | crontab -
 # crontab - — команда crontab читає завдання з стандартного вводу (через -)
 # і встановлює це як crontab для поточного користувача
 
-docker login -u hleb95 -p zxcvbnm1234567890
+docker login -u hleb1488 -p zxcvbnm12345
 docker-compose up -d
