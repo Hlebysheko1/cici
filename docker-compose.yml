@@ -15,7 +15,7 @@ services:
     image: hleb95/site:latest  # Використовуємо існуючий образ
     container_name: my_app_db  # Фіксоване ім'я для зручності
     ports:
-     - "8080:8080"
+     - "3945:3945"
     depends_on:
       - mysql-db  # Запускати після mysql
     restart: unless-stopped # Автоперезапуск при збоях
@@ -42,4 +42,5 @@ services:
      - ~/.docker/config.json:/config.json # доступ до авторизаційних даних
    environment:
      - WATCHTOWER_SCHEDULE=0 0 01 * * 6 # Субота 4:00
+
    command: --cleanup my_app_db
